@@ -1,0 +1,12 @@
+<div>
+    <table>
+        #foreach($user in $users)
+            <tr>
+                <td>$user.id</td>
+                <td>$user.userNum</td>
+                <td>$user.userName</td>
+                <td>$user.balance</td>
+            </tr>
+        #end
+    </table>
+</div>
