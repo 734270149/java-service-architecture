@@ -7,18 +7,18 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
     private static final long serialVersionUID = -2205385239868795441L;
-    private Long id;
+    private Integer id;
     private String userNum;
     private String userName;
     private Double balance;
     private Boolean sex;
     private String email;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

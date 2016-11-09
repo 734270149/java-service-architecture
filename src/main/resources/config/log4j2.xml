@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Valid values of the status attribute are "trace", "debug", "info", "warn", "error" and "fatal". -->
+<!-- monitorInterval 重新读取配置文件间隔时间 单位秒 The minimum interval is 5 seconds-->
+<Configuration status="trace" monitorInterval="3600">
+    <!--先定义所有的appender-->
+    <Appenders>
+        <!--两种strict模式都能识别-->
+        <Console name="console" follow="true">
+            <PatternLayout pattern="%-5p - %d{yyyy-MM-dd HH:mm:ss} [%t] %l -- %m%n"/>
+        </Console>
+        <RollingRandomAccessFile name="rollingFile"
+                                 fileName="${mvn.log.path}/${mvn.log.name}.log"
+                                 filePattern="${mvn.log.path}/${mvn.log.name}-%i.log.gz">
+            <PatternLayout
+                    pattern="%-5p - %d{yyyy-MM-dd HH:mm:ss} [%t] %l -- %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="500 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20" compressionLevel="9"/>
+        </RollingRandomAccessFile>
+        <Async name="async">
+            <AppenderRef ref="rollingFile"/>
+            <AppenderRef ref="console"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Root level="${mvn.log.level}" includeLocation="true">
+            <AppenderRef ref="async"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,13 +1,17 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>demo</groupId>
     <artifactId>demo</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>demo Maven Webapp</name>
-    <url>http://maven.apache.org</url>
+    <name>demo</name>
+    <url>http://demo.sg.com</url>
     <properties>
+        <mvn.jdbc.mysql.url>
+            jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull
+        </mvn.jdbc.mysql.url>
         <spring.version>4.2.6.RELEASE</spring.version>
     </properties>
 
@@ -215,6 +219,16 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.7</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-web</artifactId>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.6</version>
+        </dependency>
 
         <!--POI依赖-->
         <dependency>
@@ -234,6 +248,16 @@
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.13</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.20</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
+        </dependency>
 
         <!--spring和redis整合-->
         <dependency>
@@ -249,5 +273,37 @@
     </dependencies>
     <build>
         <finalName>demo</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
+
+    <profiles>
+        <profile>
+            <id>company</id>
+            <properties>
+                <mvn.log.path>D:\export\demo</mvn.log.path>
+                <mvn.log.name>demo</mvn.log.name>
+                <mvn.log.level>trace</mvn.log.level>
+                <mvn.jdbc.mysql.driver>com.mysql.jdbc.Driver</mvn.jdbc.mysql.driver>
+                <mvn.jdbc.mysql.username>root</mvn.jdbc.mysql.username>
+                <mvn.jdbc.mysql.password>root</mvn.jdbc.mysql.password>
+            </properties>
+        </profile>
+        <profile>
+            <id>home</id>
+            <properties>
+                <mvn.log.path>C:\export\demo</mvn.log.path>
+                <mvn.log.name>demo</mvn.log.name>
+                <mvn.log.level>trace</mvn.log.level>
+                <mvn.jdbc.mysql.driver>com.mysql.jdbc.Driver</mvn.jdbc.mysql.driver>
+                <mvn.jdbc.mysql.username>root</mvn.jdbc.mysql.username>
+                <mvn.jdbc.mysql.password>20112158</mvn.jdbc.mysql.password>
+            </properties>
+        </profile>
+    </profiles>
 </project>

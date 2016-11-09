@@ -8,5 +8,21 @@
                 <td>$user.balance</td>
             </tr>
         #end
+        <tr>
+            <td>
+                <button onclick="getFastJson('getFastJson')">getFastJson</button>
+            </td>
+            <td>
+                <button onclick="getGson('getGson')">getGson</button>
+            </td>
+        </tr>
     </table>
 </div>
+<script>
+    function getFastJson(param) {
+        window.location.href = "#springUrl('')/getFastJson?msg=" + param;
+    }
+    function getGson(param) {
+        window.location.href = "#springUrl('')/getGson?msg=" + param;
+    }
+</script>
