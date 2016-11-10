@@ -15,29 +15,6 @@
             </list>
         </property>
     </bean>
-
-    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="${mysql.driverClassName}"/>
-        <property name="url" value="${mysql.url}"/>
-        <property name="username" value="${mysql.username}"/>
-        <property name="password" value="${mysql.password}"/>
-        <property name="maxTotal" value="10"/>
-        <property name="maxIdle" value="5"/>
-    </bean>
-
-    <bean id="transactionManager"
-          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="typeAliasesPackage" value="sg.domain"/>
-        <property name="mapperLocations" value="classpath:/mapper/*.xml"/>
-        <property name="configLocation" value="classpath:config/mybatis-config.xml"/>
-    </bean>
-
-    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="sg.mybatis.dao"/>
-    </bean>
+    <import resource="spring-mysql.xml"/>
+    <import resource="spring-cache.xml"/>
 </beans>
