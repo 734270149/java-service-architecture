@@ -2,8 +2,6 @@ package sg.spring.controller;
 
 import com.google.gson.Gson;
 
-import com.alibaba.fastjson.JSONObject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,13 +42,11 @@ public class MainController {
   }
 
   @RequestMapping("getFastJson")
-  public
-  @ResponseBody
-  String getFastJson(String msg) {
-    Result result = new Result();
-    result.setCode(0);
-    result.setMsg(msg);
-    return JSONObject.toJSONString(result);
+  public String getFastJson(Model model, String msg) {
+    List<User> users = userService.selectUsersFromRedis();
+    model.addAttribute("users", users);
+    log.debug("controllerNumber:{}", controllerNumber);
+    return "index";
   }
 
   @RequestMapping("getGson")
