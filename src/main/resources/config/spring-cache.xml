@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cache="http://www.springframework.org/schema/cache"
        xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+    <cache:annotation-driven cache-manager="cacheManager"/>
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxIdle" value="5"/>
         <property name="maxTotal" value="20"/>
@@ -13,6 +15,7 @@
         <property name="hostName" value="127.0.0.1"/>
         <property name="port" value="6379"/>
         <property name="password" value=""/>
+        <property name="usePool" value="true"/>
         <property name="poolConfig" ref="jedisPoolConfig"/>
     </bean>
     <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
@@ -27,5 +30,19 @@
     <bean id="jedis" class="redis.clients.jedis.Jedis">
         <constructor-arg index="0" type="java.lang.String" value="127.0.0.1"/>
         <constructor-arg index="1" type="int" value="6379"/>
+    </bean>
+    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <list>
+                <bean class="sg.spring.cache.MyCache">
+                    <property name="name" value="one"/>
+                    <property name="jedis" ref="jedis"/>
+                </bean>
+                <bean class="sg.spring.cache.MyCache">
+                    <property name="name" value="two"/>
+                    <property name="jedis" ref="jedis"/>
+                </bean>
+            </list>
+        </property>
     </bean>
 </beans>

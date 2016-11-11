@@ -1,4 +1,4 @@
-package sg.spring.controller;
+package sg.springmvc.controller;
 
 import com.google.gson.Gson;
 
