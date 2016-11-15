@@ -6,13 +6,13 @@
     <Appenders>
         <!--两种strict模式都能识别-->
         <Console name="console" follow="true">
-            <PatternLayout pattern="%-5p - %d{yyyy-MM-dd HH:mm:ss} [%t] %l -- %m%n"/>
+            <PatternLayout pattern="%-5p - %d{yyyy-MM-dd HH:mm:ss} - %m%n"/>
         </Console>
         <RollingRandomAccessFile name="rollingFile"
                                  fileName="${mvn.log.path}/${mvn.log.name}.log"
                                  filePattern="${mvn.log.path}/${mvn.log.name}-%i.log.gz">
             <PatternLayout
-                    pattern="%-5p - %d{yyyy-MM-dd HH:mm:ss} [%t] %l -- %m%n"/>
+                    pattern="%-5p - %d{yyyy-MM-dd HH:mm:ss} - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="500 MB"/>
             </Policies>
