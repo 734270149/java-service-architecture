@@ -4,6 +4,8 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
     <cache:annotation-driven cache-manager="cacheManager"/>
+    <bean id="annotationCacheOperationSource"
+          class="sg.spring.cache.MyAnnotationCacheOperationSource"/>
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxIdle" value="5"/>
         <property name="maxTotal" value="20"/>
