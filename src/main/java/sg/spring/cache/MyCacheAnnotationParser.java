@@ -43,8 +43,9 @@ import java.util.Collection;
  *
  * @author shiguang3
  */
-@SuppressWarnings("serial")
 public class MyCacheAnnotationParser implements CacheAnnotationParser, Serializable {
+
+  private static final long serialVersionUID = -2330454031739205685L;
 
   public Collection<CacheOperation> parseCacheAnnotations(Class<?> type) {
     DefaultCacheConfig defaultConfig = getDefaultCacheConfig(type);
