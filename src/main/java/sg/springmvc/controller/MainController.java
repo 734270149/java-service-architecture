@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.annotation.Resource;
 
@@ -32,6 +33,9 @@ public class MainController {
 
   @Value("${controllerNumber}")
   private String controllerNumber;
+
+  @Resource
+  private ThreadPoolExecutor executor;
 
   @RequestMapping("")
   public String index(Model model) {

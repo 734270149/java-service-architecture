@@ -15,6 +15,25 @@
             </list>
         </property>
     </bean>
+    <bean id="executor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg index="0" value="10"/>
+        <constructor-arg index="1" value="20"/>
+        <constructor-arg index="2" value="60"/>
+        <constructor-arg index="3">
+            <bean class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+                <property name="staticField" value="java.util.concurrent.TimeUnit.MILLISECONDS"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="4">
+            <bean class="java.util.concurrent.LinkedBlockingQueue"/>
+        </constructor-arg>
+        <constructor-arg index="5">
+            <bean class="java.util.concurrent.Executors.DefaultThreadFactory"/>
+        </constructor-arg>
+        <constructor-arg index="6">
+            <bean class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy"/>
+        </constructor-arg>
+    </bean>
     <import resource="spring-mysql.xml"/>
     <import resource="spring-cache.xml"/>
 </beans>

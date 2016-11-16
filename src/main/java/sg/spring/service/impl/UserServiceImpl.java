@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.annotation.Resource;
 
@@ -37,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
   @Resource
   private Jedis jedis;
+
+  @Resource
+  private ThreadPoolExecutor executor;
 
   @Cacheable(cacheNames = "one", key = "'selectAllUsers'")
   public List<User> selectAllUsers(int limit) {
