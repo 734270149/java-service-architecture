@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,6 @@ import javax.annotation.Resource;
 import redis.clients.jedis.Jedis;
 import sg.domain.User;
 import sg.mybatis.dao.UserDao;
-import sg.spring.cache.MyCacheable;
 import sg.spring.service.UserService;
 
 /**
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
   @Resource
   private ThreadPoolExecutor executor;
 
-  @MyCacheable(cacheNames = "one", key = "'selectAllUsers'")
+  @Cacheable(cacheNames = "one", key = "'selectAllUsers1'")
   public List<User> selectAllUsers(int limit) {
     log.debug("serviceNumber:{}", serviceNumber);
     log.debug("limit:{}", limit);

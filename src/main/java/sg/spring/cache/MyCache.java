@@ -56,7 +56,7 @@ public class MyCache implements Cache {
    */
   public ValueWrapper get(Object key) {
     String json = jedis.hget(name, String.valueOf(key));
-    return json != null ? new MyValueWrapper<String>(json) : null;
+    return json != null ? new MyValueWrapper<Object>(JSON.parse(json)) : null;
   }
 
   /**
