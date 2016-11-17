@@ -61,6 +61,13 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser, Serializa
                                                              AnnotatedElement ae) {
     Collection<CacheOperation> ops = null;
 
+    Collection<MyCacheable> myCacheables = getAnnotations(ae, MyCacheable.class);
+    if (myCacheables != null) {
+      ops = lazyInit(ops);
+      for (MyCacheable cacheable : myCacheables) {
+        ops.add(parseMyCacheableAnnotation(ae, cachingConfig, cacheable));
+      }
+    }
     Collection<Cacheable> cacheables = getAnnotations(ae, Cacheable.class);
     if (cacheables != null) {
       ops = lazyInit(ops);
@@ -99,6 +106,29 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser, Serializa
   private <T extends Annotation> Collection<CacheOperation> lazyInit(
       Collection<CacheOperation> ops) {
     return (ops != null ? ops : new ArrayList<CacheOperation>(1));
+  }
+
+  CacheableOperation parseMyCacheableAnnotation(AnnotatedElement ae,
+                                                DefaultCacheConfig defaultConfig,
+                                                MyCacheable cacheable) {
+    MyCacheableOperation op = new MyCacheableOperation();
+
+    op.setCacheNames(cacheable.cacheNames());
+    op.setCondition(cacheable.condition());
+    op.setUnless(cacheable.unless());
+    op.setKey(cacheable.key());
+    op.setKeyGenerator(cacheable.keyGenerator());
+    op.setCacheManager(cacheable.cacheManager());
+    op.setCacheResolver(cacheable.cacheResolver());
+    op.setName(ae.toString());
+
+    op.setArray(cacheable.isArray());
+    op.setClassName(cacheable.className());
+
+    defaultConfig.applyDefault(op);
+    validateCacheOperation(ae, op);
+
+    return op;
   }
 
   CacheableOperation parseCacheableAnnotation(AnnotatedElement ae, DefaultCacheConfig defaultConfig,

@@ -118,4 +118,7 @@ public @interface MyCacheable {
    */
   String unless() default "";
 
+  boolean isArray() default false;
+
+  Class<?> className() default Object.class;
 }

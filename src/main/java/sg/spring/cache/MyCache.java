@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSON;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import java.util.List;
+
 import redis.clients.jedis.Jedis;
 
 /**
@@ -54,7 +56,7 @@ public class MyCache implements Cache {
    */
   public ValueWrapper get(Object key) {
     String json = jedis.hget(name, String.valueOf(key));
-    return json != null ? new MyValueWrapper(json) : null;
+    return json != null ? new MyValueWrapper<String>(json) : null;
   }
 
   /**
@@ -122,7 +124,7 @@ public class MyCache implements Cache {
    */
   public ValueWrapper putIfAbsent(Object key, Object value) {
     String json = jedis.hget(name, String.valueOf(key));
-    return json != null ? new MyValueWrapper(json) : null;
+    return json != null ? new MyValueWrapper<String>(json) : null;
   }
 
   /**
@@ -141,18 +143,33 @@ public class MyCache implements Cache {
     jedis.del(name);
   }
 
-  private static final class MyValueWrapper implements ValueWrapper {
+  public <T> ValueWrapper get(Object key, Class<T> className, boolean array) {
+    try {
+      String json = jedis.hget(name, String.valueOf(key));
+      if (array) {
+        List<T> list = JSON.parseArray(json, className);
+        return new MyValueWrapper<List<T>>(list);
+      } else {
+        T object = JSON.parseObject(json, className);
+        return new MyValueWrapper<T>(object);
+      }
+    } catch (Exception ignored) {
+    }
+    return null;
+  }
 
-    private final String value;
+  private static final class MyValueWrapper<T> implements ValueWrapper {
 
-    private MyValueWrapper(String value) {
+    private final T value;
+
+    private MyValueWrapper(T value) {
       this.value = value;
     }
 
     /**
      * Return the actual value in the cache.
      */
-    public String get() {
+    public T get() {
       return value;
     }
   }
