@@ -24,6 +24,29 @@
         </Async>
     </Appenders>
     <Loggers>
+        <!--查看mybatis是否由slf4j关联log4j2-->
+        <Logger name="org.apache.ibatis.logging.LogFactory"
+                level="DEBUG" additivity="false" includeLocation="true">
+            <AppenderRef ref="async"/>
+        </Logger>
+        <!--是否开启sql相关日志-->
+        <!--org.apache.ibatis.session.defaults.DefaultSqlSessionFactory-->
+        <Logger name="java.sql.Connection"
+                level="DEBUG" additivity="false" includeLocation="true">
+            <AppenderRef ref="async"/>
+        </Logger>
+        <!--是否开启sql参数日志-->
+        <!--org.apache.ibatis.logging.jdbc.PreparedStatementLogger-->
+        <Logger name="java.sql.PreparedStatement"
+                level="DEBUG" additivity="false" includeLocation="true">
+            <AppenderRef ref="async"/>
+        </Logger>
+        <!--是否开启sql结果日志-->
+        <!--org.apache.ibatis.logging.jdbc.ResultSetLogger-->
+        <Logger name="java.sql.ResultSet"
+                level="DEBUG" additivity="false" includeLocation="true">
+            <AppenderRef ref="async"/>
+        </Logger>
         <Root level="${mvn.log.level}" includeLocation="true">
             <AppenderRef ref="async"/>
         </Root>
