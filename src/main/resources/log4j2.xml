@@ -29,24 +29,51 @@
                 level="DEBUG" additivity="false" includeLocation="true">
             <AppenderRef ref="async"/>
         </Logger>
-        <!--是否开启sql相关日志-->
-        <!--org.apache.ibatis.session.defaults.DefaultSqlSessionFactory-->
+
+        <!--==========mybatis3.2.0及以后的新版本，sql相关日志配置 start==========-->
+        <!--
+        由于mybatis3.2.0开始日志架构调整，不在支持全局的配置模式，每次调用时都根据预先加载的配置去组装Connection，
+        相关组装Connection代码在org.apache.ibatis.executor.BaseExecutor.getConnection()，
+        对于每个Dao接口里的方法在获取对应Logger时，采用的是类文件全路径+方法名作为Logger的name。
+        因此可以根据log4j2的目录匹配特性，例如sg.mybatis.dao包里的所有类的方法(UserDao的selectAllUsers方法等)，
+        可以通过配置sg.mybatis.dao，来进行全部匹配，
+        相关匹配代码在org.apache.logging.log4j.core.config.AbstractConfiguration.getLoggerConfig()。
+        Logger配置成debug级别，会执行org.apache.ibatis.logging.jdbc.BaseJdbcLogger.debug()，从而打印出：
+        org.apache.ibatis.logging.jdbc.ConnectionLogger.java:53 sql模板
+        org.apache.ibatis.logging.jdbc.PreparedStatementLogger.java:52 sql参数
+        org.apache.ibatis.logging.jdbc.ResultSetLogger.java:82 sql结果集总数
+        Logger配置成trace级别，会比debug级别额外执行org.apache.ibatis.logging.jdbc.BaseJdbcLogger.trace()，
+        org.apache.ibatis.logging.jdbc.ResultSetLogger.java:105 sql结果集标题
+        org.apache.ibatis.logging.jdbc.ResultSetLogger.java:128 sql结果集每行数据
+        -->
+        <Logger name="sg.mybatis.dao"
+                level="TRACE" additivity="false" includeLocation="true">
+            <AppenderRef ref="async"/>
+        </Logger>
+        <!--==========mybatis3.2.0及以后的新版本，sql相关日志配置 end==========-->
+
+        <!--==========mybatis3.1.1及以前的旧版本，sql相关日志配置 start==========-->
+        <!--
+        &lt;!&ndash;是否开启sql相关日志（仅适用于mybatis3.1.1及以前的旧版本）&ndash;&gt;
+        &lt;!&ndash;org.apache.ibatis.session.defaults.DefaultSqlSessionFactory&ndash;&gt;
         <Logger name="java.sql.Connection"
                 level="DEBUG" additivity="false" includeLocation="true">
             <AppenderRef ref="async"/>
         </Logger>
-        <!--是否开启sql参数日志-->
-        <!--org.apache.ibatis.logging.jdbc.PreparedStatementLogger-->
+        &lt;!&ndash;是否开启sql参数日志（仅适用于mybatis3.1.1及以前的旧版本）&ndash;&gt;
+        &lt;!&ndash;org.apache.ibatis.logging.jdbc.PreparedStatementLogger&ndash;&gt;
         <Logger name="java.sql.PreparedStatement"
                 level="DEBUG" additivity="false" includeLocation="true">
             <AppenderRef ref="async"/>
         </Logger>
-        <!--是否开启sql结果日志-->
-        <!--org.apache.ibatis.logging.jdbc.ResultSetLogger-->
+        &lt;!&ndash;是否开启sql结果日志（仅适用于mybatis3.1.1及以前的旧版本）&ndash;&gt;
+        &lt;!&ndash;org.apache.ibatis.logging.jdbc.ResultSetLogger&ndash;&gt;
         <Logger name="java.sql.ResultSet"
                 level="DEBUG" additivity="false" includeLocation="true">
             <AppenderRef ref="async"/>
         </Logger>
+        -->
+        <!--==========mybatis3.1.1及以前的旧版本，sql相关日志配置 end==========-->
         <Root level="${mvn.log.level}" includeLocation="true">
             <AppenderRef ref="async"/>
         </Root>
