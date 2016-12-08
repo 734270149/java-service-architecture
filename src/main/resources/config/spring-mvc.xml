@@ -5,6 +5,7 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
     <mvc:annotation-driven/>
+    <mvc:default-servlet-handler default-servlet-name="default"/>
     <context:component-scan base-package="sg.springmvc"/>
     <bean id="propertyConfig"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
@@ -33,6 +34,13 @@
         <property name="cache" value="false"/>
         <property name="prefix" value=""/>
         <property name="suffix" value=".vm"/>
+        <property name="layoutUrl" value="layout/layout.vm"/>
         <property name="contentType" value="text/html;charset=UTF-8"/>
     </bean>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="sg.springmvc.interceptor.PermissionsInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
 </beans>

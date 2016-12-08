@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
   @Resource
   private ThreadPoolExecutor executor;
 
-  @Cacheable(cacheNames = "one", key = "'selectAllUsers1'")
+  @Cacheable(cacheNames = "one", key = "'selectAllUsers'")
   public List<User> selectAllUsers(int limit) {
     log.debug("serviceNumber:{}", serviceNumber);
     log.debug("limit:{}", limit);

@@ -20,7 +20,7 @@
 </div>
 <script>
     function getFastJson(param) {
-        window.location.href = "#springUrl('')/getFastJson?msg=" + param;
+        window.location.href = "#springUrl('')/getFastJson?code=400&msg=" + param;
     }
     function getGson(param) {
         window.location.href = "#springUrl('')/getGson?msg=" + param;

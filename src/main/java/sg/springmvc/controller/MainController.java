@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import sg.domain.User;
 import sg.model.Result;
 import sg.spring.service.UserService;
+import sg.springmvc.annotation.PermissionsAnnotation;
 
 /**
  * Created by SG on 2016/5/14.
@@ -45,6 +46,7 @@ public class MainController {
     return "index";
   }
 
+  @PermissionsAnnotation(code = 400)
   @RequestMapping("getFastJson")
   public String getFastJson(Model model, String msg) {
     List<User> users = userService.selectUsersFromRedis();
