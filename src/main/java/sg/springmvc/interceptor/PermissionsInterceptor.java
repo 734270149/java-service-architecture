@@ -50,7 +50,7 @@ public class PermissionsInterceptor implements HandlerInterceptor {
       for (Integer integer : sg) {
         if (integer == code) {
           // TODO: 2016/12/8 有问题待修复
-          response.sendRedirect(request.getContextPath() + "/error/error.vm");
+          response.sendRedirect(request.getContextPath() + "deny.html");
           return false;
         }
       }
