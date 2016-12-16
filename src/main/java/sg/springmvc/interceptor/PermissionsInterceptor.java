@@ -37,25 +37,26 @@ public class PermissionsInterceptor implements HandlerInterceptor {
       return true;
     }
     if (StringUtils.isEmpty(parameter)) {
+      response.sendRedirect(request.getContextPath() + "deny.html");
       return false;
     }
     try {
       int code = annotation.code();
       int parseInt = Integer.parseInt(parameter);
       if (code != parseInt) {
+        response.sendRedirect(request.getContextPath() + "deny.html");
         return false;
       }
       // TODO: 2016/12/8 动态从session中获取
       List<Integer> sg = permissionsService.queryPermissionsByPin("sg");
       for (Integer integer : sg) {
         if (integer == code) {
-          // TODO: 2016/12/8 有问题待修复
-          response.sendRedirect(request.getContextPath() + "deny.html");
-          return false;
+          return true;
         }
       }
     } catch (Exception e) {
     }
+    response.sendRedirect(request.getContextPath() + "deny.html");
     return false;
   }
 

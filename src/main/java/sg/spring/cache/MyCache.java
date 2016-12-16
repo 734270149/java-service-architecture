@@ -2,12 +2,17 @@ package sg.spring.cache;
 
 import com.alibaba.fastjson.JSON;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 
-import redis.clients.jedis.Jedis;
+import redis.clients.util.SafeEncoder;
 
 /**
  * 基于fastjson的缓存实现
@@ -15,30 +20,29 @@ import redis.clients.jedis.Jedis;
  */
 public class MyCache implements Cache {
 
-  private String name;
+  private byte[] name;
+  private StringRedisTemplate redisTemplate;
 
-  private Jedis jedis;
-
-  public void setJedis(Jedis jedis) {
-    this.jedis = jedis;
+  public void setRedisTemplate(StringRedisTemplate redisTemplate) {
+    this.redisTemplate = redisTemplate;
   }
 
   /**
    * Return the cache name.
    */
   public String getName() {
-    return name;
+    return SafeEncoder.encode(name);
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name = SafeEncoder.encode(name);
   }
 
   /**
    * Return the the underlying native cache provider.
    */
-  public Jedis getNativeCache() {
-    return jedis;
+  public StringRedisTemplate getNativeCache() {
+    return redisTemplate;
   }
 
   /**
@@ -55,8 +59,22 @@ public class MyCache implements Cache {
    * @see #get(Object, Class)
    */
   public ValueWrapper get(Object key) {
-    String json = jedis.hget(name, String.valueOf(key));
-    return json != null ? new MyValueWrapper<Object>(JSON.parse(json)) : null;
+    if (key == null) {
+      return null;
+    }
+    final byte[] field =
+        key.getClass() == String.class ?
+        SafeEncoder.encode((String) key) :
+        SafeEncoder.encode(JSON.toJSONString(key));
+    return redisTemplate.execute(new RedisCallback<ValueWrapper>() {
+      public ValueWrapper doInRedis(RedisConnection connection) throws DataAccessException {
+        byte[] bytes = connection.hGet(name, field);
+        if (ArrayUtils.isEmpty(bytes)) {
+          return null;
+        }
+        return new MyValueWrapper<Object>(JSON.parse(SafeEncoder.encode(bytes)));
+      }
+    });
   }
 
   /**
@@ -78,9 +96,23 @@ public class MyCache implements Cache {
    * @see #get(Object)
    * @since 4.0
    */
-  public <T> T get(Object key, Class<T> type) {
-    String json = jedis.hget(name, String.valueOf(key));
-    return JSON.parseObject(json, type);
+  public <T> T get(Object key, final Class<T> type) {
+    if (key == null) {
+      return null;
+    }
+    final byte[] field =
+        key.getClass() == String.class ?
+        SafeEncoder.encode((String) key) :
+        SafeEncoder.encode(JSON.toJSONString(key));
+    return redisTemplate.execute(new RedisCallback<T>() {
+      public T doInRedis(RedisConnection connection) throws DataAccessException {
+        byte[] bytes = connection.hGet(name, field);
+        if (ArrayUtils.isEmpty(bytes)) {
+          return null;
+        }
+        return JSON.parseObject(SafeEncoder.encode(bytes), type);
+      }
+    });
   }
 
   /**
@@ -91,8 +123,20 @@ public class MyCache implements Cache {
    * @param key   the key with which the specified value is to be associated
    * @param value the value to be associated with the specified key
    */
-  public void put(Object key, Object value) {
-    jedis.hset(name, String.valueOf(key), JSON.toJSONString(value));
+  public void put(final Object key, final Object value) {
+    if (key == null || value == null) {
+      return;
+    }
+    final byte[] field =
+        key.getClass() == String.class ?
+        SafeEncoder.encode((String) key) :
+        SafeEncoder.encode(JSON.toJSONString(key));
+    redisTemplate.execute(new RedisCallback<Object>() {
+      public Object doInRedis(RedisConnection connection) throws DataAccessException {
+        connection.hSet(name, field, SafeEncoder.encode(JSON.toJSONString(value)));
+        return null;
+      }
+    });
   }
 
   /**
@@ -122,9 +166,24 @@ public class MyCache implements Cache {
    * an indicator that the given {@code value} has been associated with the key.
    * @since 4.1
    */
-  public ValueWrapper putIfAbsent(Object key, Object value) {
-    String json = jedis.hget(name, String.valueOf(key));
-    return json != null ? new MyValueWrapper<String>(json) : null;
+  public ValueWrapper putIfAbsent(Object key, final Object value) {
+    if (key == null || value == null) {
+      return null;
+    }
+    final byte[] field =
+        key.getClass() == String.class ?
+        SafeEncoder.encode((String) key) :
+        SafeEncoder.encode(JSON.toJSONString(key));
+    return redisTemplate.execute(new RedisCallback<ValueWrapper>() {
+      public ValueWrapper doInRedis(RedisConnection connection) throws DataAccessException {
+        byte[] bytes = connection.hGet(name, field);
+        if (ArrayUtils.isEmpty(bytes)) {
+          return null;
+        }
+        Object parse = JSON.parse(SafeEncoder.encode(bytes));
+        return value.equals(parse) ? new MyValueWrapper<Object>(parse) : null;
+      }
+    });
   }
 
   /**
@@ -133,29 +192,54 @@ public class MyCache implements Cache {
    * @param key the key whose mapping is to be removed from the cache
    */
   public void evict(Object key) {
-    jedis.hdel(name, String.valueOf(key));
+    if (key == null) {
+      return;
+    }
+    final byte[] field =
+        key.getClass() == String.class ?
+        SafeEncoder.encode((String) key) :
+        SafeEncoder.encode(JSON.toJSONString(key));
+    redisTemplate.execute(new RedisCallback<Object>() {
+      public Object doInRedis(RedisConnection connection) throws DataAccessException {
+        connection.hDel(name, field);
+        return null;
+      }
+    });
   }
 
   /**
    * Remove all mappings from the cache.
    */
   public void clear() {
-    jedis.del(name);
+    redisTemplate.execute(new RedisCallback<Object>() {
+      public Object doInRedis(RedisConnection connection) throws DataAccessException {
+        connection.del(name);
+        return null;
+      }
+    });
   }
 
-  public <T> ValueWrapper get(Object key, Class<T> className, boolean array) {
-    try {
-      String json = jedis.hget(name, String.valueOf(key));
-      if (array) {
-        List<T> list = JSON.parseArray(json, className);
-        return new MyValueWrapper<List<T>>(list);
-      } else {
-        T object = JSON.parseObject(json, className);
-        return new MyValueWrapper<T>(object);
-      }
-    } catch (Exception ignored) {
+  public <T> ValueWrapper get(Object key, final Class<T> className, final boolean array) {
+    if (key == null) {
+      return null;
     }
-    return null;
+    final byte[] field =
+        key.getClass() == String.class ?
+        SafeEncoder.encode((String) key) :
+        SafeEncoder.encode(JSON.toJSONString(key));
+    return redisTemplate.execute(new RedisCallback<ValueWrapper>() {
+      public ValueWrapper doInRedis(RedisConnection connection) throws DataAccessException {
+        byte[] bytes = connection.hGet(name, field);
+        if (ArrayUtils.isEmpty(bytes)) {
+          return null;
+        }
+        if (array) {
+          return new MyValueWrapper<List<T>>(JSON.parseArray(SafeEncoder.encode(bytes), className));
+        } else {
+          return new MyValueWrapper<T>(JSON.parseObject(SafeEncoder.encode(bytes), className));
+        }
+      }
+    });
   }
 
   private static final class MyValueWrapper<T> implements ValueWrapper {
