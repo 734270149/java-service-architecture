@@ -5,6 +5,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -20,8 +21,12 @@ import sg.springmvc.annotation.PermissionsAnnotation;
  */
 public class PermissionsInterceptor implements HandlerInterceptor {
 
+  /**
+   * 处理拦截ajax请求的问题
+   */
+  private static final String AJAX_HEADER = "X-Requested-With";
+  private static final String AJAX_HEADER_VALUE = "XMLHttpRequest";
   private static final String CODE = "code";
-
   @Resource
   private PermissionsService permissionsService;
 
@@ -37,15 +42,13 @@ public class PermissionsInterceptor implements HandlerInterceptor {
       return true;
     }
     if (StringUtils.isEmpty(parameter)) {
-      response.sendRedirect(request.getContextPath() + "deny.html");
-      return false;
+      return toDeny(request, response);
     }
     try {
       int code = annotation.code();
       int parseInt = Integer.parseInt(parameter);
       if (code != parseInt) {
-        response.sendRedirect(request.getContextPath() + "deny.html");
-        return false;
+        return toDeny(request, response);
       }
       // TODO: 2016/12/8 动态从session中获取
       List<Integer> sg = permissionsService.queryPermissionsByPin("sg");
@@ -56,7 +59,17 @@ public class PermissionsInterceptor implements HandlerInterceptor {
       }
     } catch (Exception e) {
     }
-    response.sendRedirect(request.getContextPath() + "deny.html");
+    return toDeny(request, response);
+  }
+
+  private boolean toDeny(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    if (AJAX_HEADER_VALUE.equalsIgnoreCase(request.getHeader(AJAX_HEADER))) {
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setHeader("Location", request.getContextPath() + "deny.html");
+    } else {
+      response.sendRedirect(request.getContextPath() + "deny.html");
+    }
     return false;
   }
 
